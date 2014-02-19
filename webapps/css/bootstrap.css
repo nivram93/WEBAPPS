@@ -1711,9 +1711,8 @@ output {
   display: inline;
 }
 
-.form-control.cardTitle {
-  width: 82%;
-  display: inline;
+.form-control.card-msg {
+  margin-bottom: 5px;
 }
 
 .form-control:focus {
@@ -4776,6 +4775,11 @@ a.list-group-item-danger.active:focus {
   padding: 15px;
   word-wrap: break-word;
 }
+.panel-body.cardBody-input {
+  padding: 10px;
+}
+
+
 .panel-heading {
   padding: 10px 15px;
   border-bottom: 1px solid transparent;

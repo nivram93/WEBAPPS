@@ -74,7 +74,7 @@
     <link href="./css/dashboard.css" rel="stylesheet">
     <script type="text/JavaScript" src="./js/jquery-2.1.0.min.js"></script>
 	
-
+    
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -171,11 +171,11 @@
 				  	<form method="post" action="desk.php" class="panel panel-info">
 						<div class="panel-heading">
 						  <input type="text" name="card_title" class="form-control cardTitle" placeholder="Title" autocomplete="off" required="" autofocus="">
-						  <button class="btn btn-sm btn-primary" type="submit" name="submit">Post</button>
 						</div>
-						<div class="panel-body">
-						  <textarea type="text" name="card_message" class="form-control" placeholder="Message" required="" style="resize:none"></textarea>
-						  
+						<div class="panel-body cardBody-input">
+						  <textarea type="text" name="card_message" class="form-control card-msg" placeholder="Message" required="" style="resize:none; height: 65px"></textarea>
+						  <a href="#"><img src="./image/upload1.png" style="margin-left: 10px"/></a>
+						  <button class="btn btn-sm btn-primary" type="submit" name="submit" style="float:right">Post</button>
 						</div>
 					</form>
 				  <!--</div>-->
@@ -206,11 +206,12 @@
 									"<div class='panel-heading'>".
 										"<a href='card.php?subject=".$subject."&cardID=".$row["card_id"]."'><h3 class='panel-title'>".$row["card_title"]."</h3></a>".
 									"</div>".
-									"<div class='panel-body'>".
+									"<div class='panel-body' style='height:10em; overflow:auto'>".
 										$row["card_message"].
 									"</div>".
 								"</div>".
 							"</div>";
+							//id='panel-msg-'".$subject."-".$row["card_id"]."
 					}
 					//echo "ID: ".$row["card_id"]." Title: ".$row["card_title"]." Message: ".$row["card_message"];
 				}
@@ -228,6 +229,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="./js/jquery.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
-  
+  	<script src="./js/cardproperty.js"></script>
 
 </body></html>
