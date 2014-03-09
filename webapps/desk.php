@@ -9,46 +9,6 @@
 	else die("You must be logged in!");
 	//Try to make a page for the "You must be logged in!" message.
 	
-	if(isset($_POST['card_title'])) {
-		$con = mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-		//Close connection when it can't connect to MySQL
-		if(!$con) {
-			die('Could not connect'. mysql_error());
-		}
-
-		//Connect to the database
-		mysql_select_db($_SESSION['db'], $con);
-
-		//Database selection
-		//$sql = "SELECT * FROM user WHERE user_name='".$username."' AND user_password='".$password."' LIMIT 1";
-		$sql = "INSERT INTO card (card_title, card_message, card_owner) VALUES ('".$_POST['card_title']."', '".$_POST['card_message']."', '".$_SESSION['username']."')";
-		$res = mysql_query($sql) or die(mysql_error());
-
-		// Redirect to prevent re-submitting the form when the user refreshes the page
-		header('Location: desk.php'.$page, true, 303);
-		exit;
-	}
-	else if(isset($_POST['txt-addSubj'])) {
-		//echo "<script>alert('txt-addSubj');</script>";
-		
-		$con = mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
-		//Close connection when it can't connect to MySQL
-		if(!$con) {
-			die('Could not connect'. mysql_error());
-		}
-		//Connect to the database
-		mysql_select_db($_SESSION['db'], $con);
-
-		$subject = strtoupper($_POST['txt-addSubj']);
-
-		$sql = "INSERT INTO subject (subject_name) VALUES ('".$subject."')";
-		$res = mysql_query($sql) or die(mysql_error());
-		
-		// Redirect to prevent re-submitting the form when the user refreshes the page
-		header('Location: desk.php', true, 303);
-		exit;
-	}
-	
 ?>
 <!DOCTYPE html>
 <!-- saved from url=(0044)http://getbootstrap.com/examples/dashboard/# -->
@@ -74,7 +34,30 @@
     <link href="./css/dashboard.css" rel="stylesheet">
     <script type="text/JavaScript" src="./js/jquery-2.1.0.min.js"></script>
 	
-    
+    <script>
+
+    	function allowDrop(ev) {
+			ev.preventDefault();
+		}
+
+		function drag(ev) {
+			ev.dataTransfer.setData("Text", ev.target.id);
+			
+		}
+
+		function drop(ev) {
+			ev.preventDefault();
+			var data = ev.dataTransfer.getData("Text");
+			var divPanel = document.getElementById(data);
+			var divs = divPanel.getElementsByTagName("div");
+		
+			document.getElementById("holder").value = divs[0].id;
+			
+			var proceed = confirm("Delete?");
+			if(proceed)
+				$('form#formHolder').submit();
+		}
+    </script>
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -106,7 +89,7 @@
             <li><a href="./logout.php">Log Out</a></li>
           </ul>
           <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
+            <input type="text" name = "search" class="form-control" placeholder="Search...">
           </form>
         </div>
       </div>
@@ -118,7 +101,7 @@
           <div class="list-group">
 			<!--NAVIGATION BAR GOES HERE-->
 
-			<form method="post" action="desk.php" class="input-append">
+			<form method="post" action="desksubmit.php" class="input-append">
 				<input type="text" name="txt-addSubj" class="form-control add-subject" autocomplete="off" required placeholder="Add Subject Group"/>
 				<button class="btn btn-xs btn-info" id="btn_add" type="submit">+</button>
 			</form>
@@ -153,8 +136,10 @@
 				}
 			?>
 			
-			
-			<!--<form method="post" style="dispaly:none" name="subjectName" id="form-add-btn" onsubmit="alert('submit')"></form>-->
+			<form method="get" action="desksubmit.php" id="formHolder">
+				<input id="holder" name="holder" style="display:none"></input>
+				<img src="images/delete.png" style="margin-top:15px; float:right" ondrop="drop(event)" ondragover="allowDrop(event)"/>
+			</form>
 			
 			
           </div>
@@ -168,14 +153,14 @@
 				
 				<div class="col-sm-4">
 				  <!--<div class="panel panel-default">-->
-				  	<form method="post" action="desk.php" class="panel panel-info">
-						<div class="panel-heading">
+				  	<form method="post" action="desksubmit.php" class="panel panel-info" enctype="multipart/form-data">
+						<div class="panel-heading" style="padding:10px">
 						  <input type="text" name="card_title" class="form-control cardTitle" placeholder="Title" autocomplete="off" required="" autofocus="">
 						</div>
-						<div class="panel-body cardBody-input">
-						  <textarea type="text" name="card_message" class="form-control card-msg" placeholder="Message" required="" style="resize:none; height: 65px"></textarea>
-						  <a href="#"><img src="./image/upload1.png" style="margin-left: 10px"/></a>
-						  <button class="btn btn-sm btn-primary" type="submit" name="submit" style="float:right">Post</button>
+						<div class="panel-body" style="padding:10px">
+						  <textarea type="text" name="card_message" class="form-control" placeholder="Message" required="" style="resize:none; height: 65px; margin-bottom:5px"></textarea>
+						  <input type="file" name="file" id="file">
+						  <button class="btn btn-xs btn-primary" type="submit" name="submit" style="float:right">Post</button>
 						</div>
 					</form>
 				  <!--</div>-->
@@ -195,18 +180,31 @@
 				 
 				//Database selection
 				//$sql = "SELECT * FROM user WHERE user_name='".$username."' AND user_password='".$password."' LIMIT 1";
-				$sql = "SELECT * FROM card";
+			//		$sql = "SELECT * FROM card where card_title = 'd'";
+			
+				if(isset($_GET['search'])){
+					$search = $_GET['search'];
+					if($search != "")
+					$sql = "SELECT * FROM card WHERE card_title = '". $search. "'";
+					else
+						$sql = "SELECT * FROM card";
+
+				}
+				else{
+				 	$sql = "SELECT * FROM card";
+
+				}
 				$res = mysql_query($sql);
 				$index = 1;
 				while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
 					if(strpos($row["card_title"], '['.$subject.']') !== false || $subject == "General"){
 						
-						echo "<div class='col-sm-4'>".
-								"<div class='panel panel-info'>".
-									"<div class='panel-heading'>".
-										"<a href='card.php?subject=".$subject."&cardID=".$row["card_id"]."'><h3 class='panel-title'>".$row["card_title"]."</h3></a>".
+						echo "<div class='col-sm-4' >".
+								"<div class='panel panel-info' draggable='true' ondragstart='drag(event)' id='cardPost".$row["card_id"]."'>".
+									"<div class='panel-heading' style='white-space:nowrap' id='".$row["card_id"]."'>".
+										"<a href='card.php?subject=".$subject."&cardID=".$row["card_id"]."' ><h3 class='panel-title' style='white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width: 80%;'>".$row["card_title"]."</h3></a>".
 									"</div>".
-									"<div class='panel-body' style='height:10em; overflow:auto'>".
+									"<div class='panel-body' style='height:11em; overflow:auto;'>".
 										$row["card_message"].
 									"</div>".
 								"</div>".
@@ -229,6 +227,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="./js/jquery.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
-  	<script src="./js/cardproperty.js"></script>
+  	
 
 </body></html>

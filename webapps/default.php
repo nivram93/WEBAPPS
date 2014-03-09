@@ -1,11 +1,9 @@
 <?php
-	
-	session_start();
-	
-	$_SESSION['host'] = "localhost";
-	$_SESSION['user'] = "root";
-	$_SESSION['pass'] = "";
-	$_SESSION['db'] = "teachersdesk";
+
+	$_SESSION['host'] = "mysql2.000webhost.com";
+	$_SESSION['user'] = "a9415213_raphael";
+	$_SESSION['pass'] = "1Password";
+	$_SESSION['db'] = "a9415213_tdesk";
 	
 	$con = mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
 	//Close connection when it can't connect to MySQL
@@ -40,7 +38,7 @@
 				exit;
 			}
 		} else {
-			header('Location: login.php?error=TRUE');
+			header('Location: default.php?error=TRUE');
 			exit;
 		}
 	}
@@ -66,8 +64,8 @@
 
 	<body style="">
 		<div class="container">
-			<form method="post" action="login.php" class="form-signin" role="form">
-				<h2 class="form-signin-heading" style="text-align: center"><a href="login.php">Teacher's Desk</a></h2>
+			<form method="post" action="default.php" class="form-signin" role="form">
+				<h2 class="form-signin-heading" style="text-align: center"><a href="default.php">Teacher's Desk</a></h2>
 				
 				<h6 id="error_message" style="text-align:center; color:red;">Invalid username or password.</h6>
 				<input type="text" name="username" class="form-control" placeholder="Username" required="" autofocus="" id="input-userid">
@@ -78,4 +76,4 @@
 			</form>
 		</div>
 	</body>
-</html>
+</html>	

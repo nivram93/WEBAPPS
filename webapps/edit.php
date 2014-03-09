@@ -20,6 +20,29 @@
 		$sql = "INSERT INTO comment (comment_message, comment_owner, comment_card_id, comment_reply) VALUES ('".$_POST['comment_message']."', '".$_SESSION['username']."', '".$_GET['cardID']."', -1)";
 		$res = mysql_query($sql) or die(mysql_error());
 	}
+	 if(isset($_POST['card_title_edit'])) {
+		$title = $_POST['card_title_edit'];
+		$message = $_POST['card_message'];
+		$cardID = $_GET['cardID'];
+		
+		$con = mysql_connect($_SESSION['host'], $_SESSION['user'], $_SESSION['pass']);
+		//Close connection when it can't connect to MySQL
+		if(!$con) {
+			die('Could not connect'. mysql_error());
+		}
+		
+		//Connect to the database
+		mysql_select_db($_SESSION['db'], $con);
+		
+		//Database selection
+		$sql = "UPDATE card SET card_title ='".$title."',card_message='".$message."' WHERE card_id=".$cardID.";";	
+		$res = mysql_query($sql) or die($sql."".mysql_error());
+
+		// Redirect to prevent re-submitting the form when the user refreshes the page
+		header('Location: desk.php'.$page, true, 303);
+		exit;
+
+	}
 	
 	/*
 	if(isset($_POST['comment'])) {
@@ -65,10 +88,21 @@
 					$res = mysql_query($sql);
 					while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
 						$card_title = $row['card_title'];
+						$full_title = $card_title;
 						$index = strpos($card_title, "]");
 						if($index !== FALSE)
 							$card_title = substr($card_title, $index + 1);
 						echo "<title>".$card_title."</title>";
+					}	
+
+					$sql = "SELECT card_message FROM card WHERE card_id='".$_GET['cardID']."' LIMIT 1";
+					$res = mysql_query($sql);
+					while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
+						$card_message = $row['card_message'];
+						$index = strpos($card_message, "]");
+						if($index !== FALSE)
+							$card_message = substr($card_message, $index + 1);
+					//	echo "<title>".$card_message."</title>";
 					}			
 				?>
 
@@ -77,29 +111,6 @@
 
     <!-- Custom styles for this template -->
     <link href="./css/dashboard.css" rel="stylesheet">
-
-
-<script>
-function delete(id) {
-  alert("delete func");
-  document.getElementById("holder").value = id;
-  var proceed = confirm("Delete?");
-  if(proceed) {
-      $('form#formHolder').submit();
-      
-  }
-  
-}
-
-function alert2(text) {
-  alert(text);
-}
-
-function alert3() {
-  alert('alert3');
-}
-
-</script>
 	
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -180,11 +191,6 @@ function alert3() {
 				}
 				
 			?>
-
-<form method="get" action="desksubmit.php" id="formHolder">
-				<input id="holder" name="holder" style="display:none"></input>
-				<img src="images/delete.png" style="margin-top:15px; float:right" ondrop="drop(event)" ondragover="allowDrop(event)"/>
-			</form>
           </div>
         </div>
       </div>
@@ -207,26 +213,23 @@ function alert3() {
 					$sql = "SELECT * FROM card WHERE card_id=".$_GET['cardID'].";";
 					$res = mysql_query($sql);
 					
-					while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
-						echo "<div class='col-sm-8'>".
-									"<div class='panel panel-info'>".
-										"<div class='panel-heading'>".
-											"<h2 class='panel-title' style='display:inline'>".$row["card_title"]."</h2>".
-									//		"<button type='button' class='btn btn-link'  onclick= edit();>Edit</button>".
-											"<a href='edit.php?subject=".$subject."&cardID=".$row["card_id"]."' ><h3 class='panel-title' style='float: right;'>".'Edit'."</h3></a>".
-									"<a href='' onclick=\"alert('potek'); return false;\" id='deleteLink'><h3 class='panel-title' style='float: right'>Delete</h3></a>".
-										"</div>".
-										"<div class='panel-body'>".
-											$row["card_message"].
-										"</div>".
-									"</div>".
-								"</div>";
-					}			
-					
+						
+
+				echo "<div class='col-sm-4'>".
+					  "<!--<div class='panel panel-default'>-->".
+					  "<form method='post' class='panel panel-info'>".
+							"<div class='panel-heading' style='padding:10px'>".
+							 "<input type='text' id = 'title' name='card_title_edit' class='form-control cardTitle' placeholder='Title' autocomplete='off' required='' autofocus='' value='".$full_title."'>".
+							"</div>".
+							"<div class='panel-body' style='padding:10px'>".
+							  "<textarea type='text' id = 'message' name='card_message' class='form-control' placeholder='Message' required='' style='resize:none; height: 65px; margin-bottom:5px'>".$card_message."</textarea>".
+							  "<button class='btn btn-sm btn-primary' type='submit' name='submit' style='float:right'>Edit</button>".
+							"</div>".
+						"</form>".
+					  "<!--</div>-->".
+					"</div><!-- /.col-sm-4 -->"	
+						
 				?>
-
-
-
 			</div>
 			<hr>
 			<h4>Comments:</h4>
@@ -268,7 +271,7 @@ function alert3() {
 	<script type="text/javascript">
 
 	function edit(){
-		window.location = "edit.php"
+		
 	}
 
 	</script>
@@ -280,4 +283,4 @@ function alert3() {
     <script src="./js/bootstrap.min.js"></script>
   
 
-</body></html>					
+</body></html>		
